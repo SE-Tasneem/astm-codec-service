@@ -48,7 +48,7 @@ def handle_patient_record(data):
 
 def handle_test_order_record(data):
     order = omnilab.client.Order(*decode_record(data))
-    testArray = {}
+    testArray = []
     for test in order.test:
       case = {'assay_code': test.assay_code, 'assay_name': test.assay_name}
       testArray.append(case)
@@ -58,8 +58,8 @@ def handle_test_order_record(data):
         'sample_id': order.sample_id,
         'tests': testArray,
         'priority': order.priority,
-        'created_at': order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-        'sampled_at': order.sampled_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'created_at': order.created_at.strftime('%Y-%m-%d %H:%M:%S') if order.created_at else '',
+        'sampled_at': order.sampled_at.strftime('%Y-%m-%d %H:%M:%S') if order.sampled_at else '',
         'action_code': order.action_code,
         'biomaterial': order.biomaterial,
         'user_field_1': order.user_field_1,
@@ -135,8 +135,6 @@ def decode_message(data):
   }
   # Handling the data based on the starting letter
   if len(data) > 0:
-    if data[0] == "\"":
-      data = data[1:-1]
     print(data)
     letter = data[0]
     print(letter)
@@ -144,5 +142,3 @@ def decode_message(data):
   else:
     result = 'Message is empty'
   return json.dumps(result)
-# for test:
-# print(decode_message('P|1||012512||Othero^||19870519|M|||||40||||||||||||39'))
