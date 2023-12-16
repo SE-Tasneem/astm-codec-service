@@ -3,6 +3,7 @@ from astm import omnilab
 from astm.constants import ENCODING
 import json
 import datetime
+from query_message import setMessage
 
 decode_record = lambda r: codec.decode_record(r.decode(), ENCODING)
 encode_record = lambda r: codec.encode_record(r, ENCODING)
@@ -107,6 +108,10 @@ def create_comment_record(data):
     }
     return result
 
+def create_query_record(data):
+    result = setMessage(data)
+    return result
+
 def create_scientific_record(data):
     print("Scientific Record")
     return 'Scientific Record'
@@ -114,10 +119,6 @@ def create_scientific_record(data):
 def create_manufacturer_record(data):
     print("Manufacturer Record")
     return 'Manufacturer Record'
-
-def create_request_information(data):
-    print("Request Information")
-    return 'Request Information'
 
 def create_final_record(data):
     term = omnilab.client.Terminator(*encode_record(data))
@@ -137,7 +138,7 @@ def encode_message(data):
       'C': lambda: create_comment_record(data),
       'S': lambda: create_scientific_record(data),
       'M': lambda: create_manufacturer_record(data),
-      'Q': lambda: create_request_information(data),
+      'Q': lambda: create_query_record(data),
       'L': lambda: create_final_record(data)
   }
   # Handling the data based on the starting letter

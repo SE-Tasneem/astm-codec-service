@@ -3,6 +3,8 @@ from astm import omnilab
 from astm.constants import ENCODING
 import json
 
+from query_message import getMessage
+
 decode_record = lambda r: codec.decode_record(r.encode(), ENCODING)
 encode_record = lambda r: codec.encode_record(r, ENCODING)
 
@@ -100,6 +102,10 @@ def handle_comment_record(data):
     }
     return result
 
+def handle_query_record(data):
+    result = getMessage(data)
+    return result
+
 def handle_scientific_record(data):
     print("Scientific Record")
     return 'Scientific Record'
@@ -108,9 +114,6 @@ def handle_manufacturer_record(data):
     print("Manufacturer Record")
     return 'Manufacturer Record'
 
-def handle_request_information(data):
-    print("Request Information")
-    return 'Request Information'
 
 def handle_final_record(data):
     term = omnilab.client.Terminator(*decode_record(data))
@@ -130,7 +133,7 @@ def decode_message(data):
       'C': lambda: handle_comment_record(data),
       'S': lambda: handle_scientific_record(data),
       'M': lambda: handle_manufacturer_record(data),
-      'Q': lambda: handle_request_information(data),
+      'Q': lambda: handle_query_record(data),
       'L': lambda: handle_final_record(data)
   }
   # Handling the data based on the starting letter
