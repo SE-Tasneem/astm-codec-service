@@ -2,7 +2,7 @@ from astm import codec
 from astm import omnilab
 from astm.constants import ENCODING
 import json
-import datetime
+from datetime import datetime
 from query_message import setMessage
 
 decode_record = lambda r: codec.decode_record(r.decode(), ENCODING)
@@ -33,7 +33,7 @@ def create_patient_record(patient):
     patient['laboratory_id'],
     patient['first_name'],
     patient['last_name'],
-    patient['birthdate'].strftime('%Y-%m-%d %H:%M:%S'),
+    patient['birthdate'],
     patient['sex'],
     patient['physician_id'],
     patient['special_1'],
@@ -120,14 +120,18 @@ def create_manufacturer_record(data):
     print("Manufacturer Record")
     return 'Manufacturer Record'
 
-def create_final_record(data):
-    term = omnilab.client.Terminator(*encode_record(data))
-    result = {
-        'type': term.type,
-        'seq': term.seq,
-        'code': term.code
-    }
-    return result
+def create_final_record(filnal):
+    try:
+      message = ''
+      message += '{}|{}|{}'.format(
+        filnal['type'],
+        filnal['seq'],
+        filnal['code']
+      )
+    except Exception as e:
+      print("The error is: ",e)
+      return "something went wrong!"
+    return message
 
 def encode_message(data):
   switcher = {
@@ -143,76 +147,73 @@ def encode_message(data):
   }
   # Handling the data based on the starting letter
   if len(data) > 0:
-    print(data)
     letter = data['type']
-    print(letter)
     result = switcher.get(letter, lambda: "Array not recognized")()
   else:
     result = 'Message is empty'
   return json.dumps(result)
-# for test:
-patient = {
-    'type': 'P',
-    'seq': 1,
-    'practice_id': '1234567890',
-    'laboratory_id': 'ABCDEFGHIJ',
-    'first_name': 'John',
-    'last_name': 'Doe',
-    'birthdate': datetime.datetime(1980, 1, 1),
-    'sex': 'M',
-    'physician_id': '123456',
-    'special_1': 'SPECIAL1',
-    'special_2': 'SPECIAL2'
-}
+# Example for test:
+# patient = {
+#     'type': 'P',
+#     'seq': 1,
+#     'practice_id': '1234567890',
+#     'laboratory_id': 'ABCDEFGHIJ',
+#     'first_name': 'John',
+#     'last_name': 'Doe',
+#     'birthdate': datetime.datetime(1980, 1, 1),
+#     'sex': 'M',
+#     'physician_id': '123456',
+#     'special_1': 'SPECIAL1',
+#     'special_2': 'SPECIAL2'
+# }
 # data = 'O|1|12120001||^^^NA^Sodium\^^^Cl^Clorum|R|20011023105715|20011023105715||||N||||S|||CHIM|AXM|Lab1|12120||||O|||||LAB2'
-order = {
-  'type': 'O',
-  'seq': 1,
-  'sample_id': '12120001',
-  'instrument': '',
-  'test': '^^^NA^Sodium\^^^Cl^Clorum',
-  'priority': 'R',
-  'created_at': '20011023105715',
-  'sampled_at': '20011023105715',
-  'collected_at': '',
-  'volume': '',
-  'collector': '',
-  'action_code': 'N',
-  'danger_code': '',
-  'clinical_info': '',
-  'delivered_at': '',
-  'biomaterial': 'S',
-  'physician': '',
-  'physician_phone': '',
-  'user_field_1': 'CHIM',
-  'user_field_2': 'AXM',
-  'laboratory_field_1': 'Lab1',
-  'laboratory_field_2': '12120',
-  'modified_at': '',
-  'instrument_charge': '',
-  'instrument_section': '',
-  'report_type': 'O',
-  'reserved': '',
-  'location_ward': '',
-  'infection_flag': '',
-  'specimen_service': '',
-  'laboratory': 'LAB2'
-}
+# order = {
+#   'type': 'O',
+#   'seq': 1,
+#   'sample_id': '12120001',
+#   'instrument': '',
+#   'test': '^^^NA^Sodium\^^^Cl^Clorum',
+#   'priority': 'R',
+#   'created_at': '20011023105715',
+#   'sampled_at': '20011023105715',
+#   'collected_at': '',
+#   'volume': '',
+#   'collector': '',
+#   'action_code': 'N',
+#   'danger_code': '',
+#   'clinical_info': '',
+#   'delivered_at': '',
+#   'biomaterial': 'S',
+#   'physician': '',
+#   'physician_phone': '',
+#   'user_field_1': 'CHIM',
+#   'user_field_2': 'AXM',
+#   'laboratory_field_1': 'Lab1',
+#   'laboratory_field_2': '12120',
+#   'modified_at': '',
+#   'instrument_charge': '',
+#   'instrument_section': '',
+#   'report_type': 'O',
+#   'reserved': '',
+#   'location_ward': '',
+#   'infection_flag': '',
+#   'specimen_service': '',
+#   'laboratory': 'LAB2'
+# }
 # data = 'R|1|^^^NA^Sodium|7.273|mmol/l|10-120|0|N|F||Val.Autom.^Smith |201009261006|201009261034^201009261033|Architect'
-result = {
-  'type': 'R',
-  'seq': 1,
-  'test': 'instrument',
-  'units': 'mmol/l',
-  'references': '10-120',
-  'abnormal_flag': 0,
-  'abnormality_nature': 'N',
-  'status': 'F',
-  'operator_code_on_labonline': 'Val.Autom.',
-  'operator_code_on_analyzer': 'Smith',
-  'started_at': datetime.datetime(2010, 9, 26, 10, 0, 6),
-  'completed_at_labonline': datetime.datetime(2010, 9, 26, 10, 0, 6),
-  'completed_at_analyzer': datetime.datetime(2010, 9, 26, 10, 0, 6),
-  'instrument': 'Architect'
-}
-print(encode_message(order))
+# result = {
+#   'type': 'R',
+#   'seq': 1,
+#   'test': 'instrument',
+#   'units': 'mmol/l',
+#   'references': '10-120',
+#   'abnormal_flag': 0,
+#   'abnormality_nature': 'N',
+#   'status': 'F',
+#   'operator_code_on_labonline': 'Val.Autom.',
+#   'operator_code_on_analyzer': 'Smith',
+#   'started_at': datetime.datetime(2010, 9, 26, 10, 0, 6),
+#   'completed_at_labonline': datetime.datetime(2010, 9, 26, 10, 0, 6),
+#   'completed_at_analyzer': datetime.datetime(2010, 9, 26, 10, 0, 6),
+#   'instrument': 'Architect'
+# }

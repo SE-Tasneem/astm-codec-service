@@ -1,5 +1,5 @@
 # PS code
-def getMessage(message='Q|1|^342244||||||||||O'):
+def getMessage(message):
     query_item = {
       'type': None,
       'seq': None,
@@ -75,9 +75,9 @@ query_item = {
     'request_info': 'O'
 }
 
-result = setMessage(query_item)
-print(result)
+# result = setMessage(query_item)
+# print(result)
 
 # Example usage:
-result = getMessage()
-print(result)
+# result = getMessage()
+# print(result)

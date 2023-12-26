@@ -1,9 +1,8 @@
+from base64 import encode
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import json
-import cgi
 import decoder
-import yaml
-import sys
+import encoder
 
 PORT_NUMBER = 8080
 PUBLIC_ENTRY = './public/index.html'
@@ -28,12 +27,24 @@ class handleRoutes(BaseHTTPRequestHandler):
           data = json.loads(json_data)
           data = self.byteify(data)
           message = decode_message(data['message'])
-          print(message)
         except ValueError as e:
           return self.sendResponse('Invalid JSON format: {}'.format(e), 400, 'application/json')
         decoded_message = decoder.decode_message(message)
         print(decoded_message)
         return self.sendResponse(decoded_message, 200, 'application/json')
+      if (self.path.endswith('encode-message')):
+        # Read the content length to determine the size of the incoming data
+        content_length = int(self.headers['Content-Length'])
+        # Read the JSON data from the request body
+        json_data = self.rfile.read(content_length)
+        try:
+          # Parse the JSON data
+          data = json.loads(json_data)
+        except ValueError as e:
+          return self.sendResponse('Invalid JSON format: {}'.format(e), 400, 'application/json')
+        encode_message = encoder.encode_message(data)
+        print(encode_message)
+        return self.sendResponse(encode_message, 200, 'application/json')
       if (self.path.endswith('world')):
         return self.sendResponse('{"world": "hello"}', 200, 'application/json')
     else:
